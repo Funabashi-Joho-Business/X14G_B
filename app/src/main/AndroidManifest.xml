@@ -19,7 +19,6 @@
             android:name="com.google.android.apps.drive.APP_ID"
             android:value="id=238862485258-n2up5vooa14oqka2g2eptl32r6scbf8m.apps.googleusercontent.com" />
         <activity
-            android:launchMode="singleTask"
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
