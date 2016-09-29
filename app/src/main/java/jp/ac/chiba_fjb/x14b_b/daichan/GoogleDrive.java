@@ -34,7 +34,8 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
         private DriveFolder mFolder;
 
         public Folder(){
-            mFolder = Drive.DriveApi.getRootFolder(mGoogleApiClient);
+            if(mGoogleApiClient.isConnected())
+                mFolder = Drive.DriveApi.getRootFolder(mGoogleApiClient);
         }
         public Folder(DriveFolder folder){
             mFolder = folder;
@@ -98,13 +99,14 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
 
 
     private GoogleApiClient mGoogleApiClient;
-
+    FragmentActivity mActivity;
     public GoogleDrive(FragmentActivity con){
         mGoogleApiClient = new GoogleApiClient.Builder(con)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
                 .enableAutoManage(con, this)
                 .build();
+        mActivity = con;
     }
 
     boolean connect(){
@@ -118,6 +120,7 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
     public void disconnect() {
         if(mGoogleApiClient != null)
             mGoogleApiClient.disconnect();
+        mGoogleApiClient.stopAutoManage(mActivity);
     }
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -126,13 +129,21 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
 
     @Override
     public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
-        if(driveContentsResult.getStatus().isSuccess())
-            Drive.DriveApi.requestSync(mGoogleApiClient).await();
+        if(driveContentsResult.getStatus().isSuccess()){
+            Drive.DriveApi.requestSync(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+
+                }
+            });
+        }
     }
 
     Folder getFolder(){
         return new Folder();
     }
-
+    boolean isConnected(){
+        return mGoogleApiClient.isConnected();
+    }
 
 }

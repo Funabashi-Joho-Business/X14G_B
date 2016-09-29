@@ -103,8 +103,12 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         //カメラデバイスの解放
-        mCamera.release();
-        mCamera = null;
+        if(mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+            mCameraId = -1;
+            return true;
+        }
         return false;
     }
 
@@ -173,7 +177,10 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
     public boolean close(){
         if(mCamera == null)
             return false;
+        stopPreview();
         mCamera.release();
+        mCamera = null;
+        mCameraId = -1;
         return true;
     }
     public List<Camera.Size> getPreviewSizes(){

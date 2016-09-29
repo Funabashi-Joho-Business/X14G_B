@@ -37,11 +37,9 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
         view.setOnTouchListener(this);
         return view;
     }
-
     @Override
-    public void onResume() {
-        super.onResume();
-
+    public void onStart() {
+        super.onStart();
 
         mCamera = new CameraPreview();
         TextureView textureView = (TextureView)getView().findViewById(R.id.textureView);
@@ -49,14 +47,17 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
         mCamera.open(0);
         mCamera.startPreview();
         mCamera.setSaveListener(this);
+
+        mDrive = new GoogleDrive(getActivity());
+        mDrive.connect();
+
     }
 
     @Override
-    public void onPause() {
-
+    public void onStop() {
         mCamera.close();
-        //mCamera.
-        super.onPause();
+        mDrive.disconnect();
+        super.onStop();
     }
 
     @Override
@@ -65,19 +66,7 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
         return false;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mDrive = new GoogleDrive(getActivity());
-        mDrive.connect();
 
-    }
-
-    @Override
-    public void onStop() {
-        mDrive.disconnect();
-        super.onStop();
-    }
 
     @Override
     public void onSave(final Bitmap bitmap) {
@@ -85,28 +74,38 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
             @Override
             public void run() {
                 super.run();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-                final String filename = sdf.format(new Date())+".jpeg";
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Snackbar.make(getView(), filename+"を保存中", Snackbar.LENGTH_SHORT).show();
-                    }
-                });
+                if(mDrive.isConnected()) {
 
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+                    final String filename = sdf.format(new Date()) + ".jpeg";
 
-                GoogleDrive.Folder f = mDrive.getFolder().createFolder("CamData");
-                f.uploadBitmap(filename,bitmap);
-                System.out.println("出力");
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Snackbar.make(getView(), filename + "を保存中", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
 
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Snackbar.make(getView(), filename+"を保存完了", Snackbar.LENGTH_SHORT).show();
-                    }
-                });
+                    GoogleDrive.Folder f = mDrive.getFolder().createFolder("CamData");
+                    f.uploadBitmap(filename, bitmap);
+                    System.out.println("出力");
+
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Snackbar.make(getView(), filename + "を保存完了", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                }else
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Snackbar.make(getView(),"ドライブに接続されていません", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
 
 
             }
