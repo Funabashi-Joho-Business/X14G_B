@@ -1,5 +1,8 @@
 package jp.ac.chiba_fjb.x14b_b.daichan;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,9 +14,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 
 
 public class MainActivity extends AppCompatActivity  {
@@ -25,7 +35,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Log.d("SHA1フィンガープリント", getAppFinger(this));
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
@@ -95,7 +105,22 @@ public class MainActivity extends AppCompatActivity  {
         return super.onOptionsItemSelected(item);
     }
 
+    static public String getAppFinger(Context con){
+        try {
+            PackageInfo packageInfo = con.getPackageManager().getPackageInfo(con.getPackageName(), PackageManager.GET_SIGNATURES);
+            InputStream input = new ByteArrayInputStream(packageInfo.signatures[0].toByteArray());
+            Certificate c = CertificateFactory.getInstance("X509").generateCertificate(input);
+            byte[] publicKey = MessageDigest.getInstance("SHA1").digest(c.getEncoded());
 
+            StringBuffer hexString = new StringBuffer();
+            for (int i=0;i<publicKey.length;i++)
+                hexString.append(String.format("%02x",publicKey[i]));
+            return hexString.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
 

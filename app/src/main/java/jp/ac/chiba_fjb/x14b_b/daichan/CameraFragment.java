@@ -23,6 +23,7 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
 
     private CameraPreview mCamera;
     private GoogleDrive mDrive;
+    private boolean mUploadFlag = false;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -76,29 +77,40 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
                 super.run();
 
                 if(mDrive.isConnected()) {
+                    if(!mUploadFlag) {
+                        mUploadFlag = true;
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+                        final String filename = sdf.format(new Date()) + ".jpeg";
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-                    final String filename = sdf.format(new Date()) + ".jpeg";
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Snackbar.make(getView(), filename + "を保存中", Snackbar.LENGTH_SHORT).show();
-                        }
-                    });
-
-
-                    GoogleDrive.Folder f = mDrive.getFolder().createFolder("CamData");
-                    f.uploadBitmap(filename, bitmap);
-                    System.out.println("出力");
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Snackbar.make(getView(), filename + "を保存中", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
 
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Snackbar.make(getView(), filename + "を保存完了", Snackbar.LENGTH_SHORT).show();
-                        }
-                    });
+                        GoogleDrive.Folder f = mDrive.getFolder().createFolder("CamData");
+                        f.uploadBitmap(filename, bitmap);
+                        System.out.println("出力");
+                        mUploadFlag = false;
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Snackbar.make(getView(), filename + "を保存完了", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
+                    }else{
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Snackbar.make(getView(), "保存中の為、撮影をキャンセルしました", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+
                 }else
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
