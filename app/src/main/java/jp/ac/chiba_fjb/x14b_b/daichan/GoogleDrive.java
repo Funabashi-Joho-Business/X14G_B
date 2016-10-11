@@ -22,7 +22,10 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -39,6 +42,33 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
         }
         public Folder(DriveFolder folder){
             mFolder = folder;
+        }
+        public void uploadFile(String destName,String srcName){
+            MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                    .setTitle(destName)
+                    .setMimeType("image/jpg")
+                    .setStarred(false).build();
+
+            DriveApi.DriveContentsResult result = Drive.DriveApi.newDriveContents(mGoogleApiClient).await();
+            DriveContents contents = result.getDriveContents();
+            try {
+                InputStream is = new FileInputStream(new File(srcName));
+                OutputStream os = contents.getOutputStream();
+                byte[] buf = new byte[8192];
+                int c;
+
+                while ((c = is.read(buf, 0, buf.length)) > 0) {
+                    os.write(buf, 0, c);
+                }
+                // 保存処理終了
+                os.close();
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            mFolder.createFile(mGoogleApiClient, changeSet, contents).await();
+
         }
         public void uploadBitmap(String fileName,Bitmap bitmap){
             MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -99,13 +129,19 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
 
 
     private GoogleApiClient mGoogleApiClient;
-    FragmentActivity mActivity;
-    public GoogleDrive(FragmentActivity con){
-        mGoogleApiClient = new GoogleApiClient.Builder(con)
-                .addApi(Drive.API)
-                .addScope(Drive.SCOPE_FILE)
-                .enableAutoManage(con, this)
-                .build();
+    Context mActivity;
+    public GoogleDrive(Context con){
+        FragmentActivity activity = null;
+        if(con instanceof FragmentActivity)
+            activity = (FragmentActivity)con;
+
+        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(con);
+        builder.addApi(Drive.API)
+                .addScope(Drive.SCOPE_FILE);
+        if(con instanceof FragmentActivity)
+            builder.enableAutoManage(activity, this);
+
+        mGoogleApiClient = builder.build();
         mActivity = con;
     }
 
@@ -120,7 +156,8 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
     public void disconnect() {
         if(mGoogleApiClient != null)
             mGoogleApiClient.disconnect();
-        mGoogleApiClient.stopAutoManage(mActivity);
+        if(mActivity instanceof FragmentActivity)
+            mGoogleApiClient.stopAutoManage((FragmentActivity) mActivity);
     }
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -145,5 +182,7 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
     boolean isConnected(){
         return mGoogleApiClient.isConnected();
     }
-
+    public void sync(){
+        Drive.DriveApi.requestSync(mGoogleApiClient).await();
+    }
 }

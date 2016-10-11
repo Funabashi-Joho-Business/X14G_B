@@ -1,6 +1,7 @@
 package jp.ac.chiba_fjb.x14b_b.daichan;
 
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -11,6 +12,9 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -42,12 +46,7 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
     public void onStart() {
         super.onStart();
 
-        mCamera = new CameraPreview();
-        TextureView textureView = (TextureView)getView().findViewById(R.id.textureView);
-        mCamera.setTextureView(textureView);
-        mCamera.open(0);
-        mCamera.startPreview();
-        mCamera.setSaveListener(this);
+
 
         mDrive = new GoogleDrive(getActivity());
         mDrive.connect();
@@ -56,10 +55,29 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
 
     @Override
     public void onStop() {
-        mCamera.close();
+
         mDrive.disconnect();
         super.onStop();
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mCamera = new CameraPreview();
+        TextureView textureView = (TextureView)getView().findViewById(R.id.textureView);
+        mCamera.setTextureView(textureView);
+        mCamera.open(0);
+        mCamera.startPreview();
+        mCamera.setOnSaveListener(this);
+
+    }
+    @Override
+    public void onPause() {
+        mCamera.close();
+        super.onPause();
+    }
+
+
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -71,6 +89,27 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
 
     @Override
     public void onSave(final Bitmap bitmap) {
+        final String fileName;
+        try {
+            String path = getActivity().getCacheDir().getPath();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            fileName = path+"/"+sdf.format(new Date()) + ".jpeg";
+
+            FileOutputStream fos = null;
+            fos = new FileOutputStream(new File(fileName));
+            // jpegで保存
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            // 保存処理終了
+            fos.close();
+
+            //ファイルのアップロード要求
+            Intent intent = new Intent(getContext(), UploadService.class);
+            intent.putExtra("FILE_NAME",fileName);
+            getActivity().startService(intent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+/*
         new Thread(){
             @Override
             public void run() {
@@ -79,8 +118,6 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
                 if(mDrive.isConnected()) {
                     if(!mUploadFlag) {
                         mUploadFlag = true;
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-                        final String filename = sdf.format(new Date()) + ".jpeg";
 
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -121,6 +158,6 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
 
 
             }
-        }.start();
+        }.start();*/
     }
 }

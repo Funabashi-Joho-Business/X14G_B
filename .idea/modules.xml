@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Daichan.iml" filepath="$PROJECT_DIR$/Daichan.iml" />
       <module fileurl="file://$PROJECT_DIR$/ShareLib/ShareLib.iml" filepath="$PROJECT_DIR$/ShareLib/ShareLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/X14G_B.iml" filepath="$PROJECT_DIR$/X14G_B.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

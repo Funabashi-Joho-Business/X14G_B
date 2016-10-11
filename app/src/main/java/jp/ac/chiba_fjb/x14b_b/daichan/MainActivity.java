@@ -35,11 +35,6 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d("SHA1フィンガープリント", getAppFinger(this));
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
 
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             String[] mTabNames = {"カメラテスト"};
@@ -70,58 +65,7 @@ public class MainActivity extends AppCompatActivity  {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-      FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-      fab.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-              Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                      .setAction("Action", null).show();
-          }
-      });
-
-
     }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    static public String getAppFinger(Context con){
-        try {
-            PackageInfo packageInfo = con.getPackageManager().getPackageInfo(con.getPackageName(), PackageManager.GET_SIGNATURES);
-            InputStream input = new ByteArrayInputStream(packageInfo.signatures[0].toByteArray());
-            Certificate c = CertificateFactory.getInstance("X509").generateCertificate(input);
-            byte[] publicKey = MessageDigest.getInstance("SHA1").digest(c.getEncoded());
-
-            StringBuffer hexString = new StringBuffer();
-            for (int i=0;i<publicKey.length;i++)
-                hexString.append(String.format("%02x",publicKey[i]));
-            return hexString.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
 
 }

@@ -27,7 +27,7 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
     static interface SaveListener{
         public void onSave(Bitmap bitmap);
     }
-    void setSaveListener(SaveListener l){
+    void setOnSaveListener(SaveListener l){
         mSaveListener = l;
     }
     boolean stopPreview(){
