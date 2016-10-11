@@ -147,12 +147,10 @@ public class GoogleDrive implements  GoogleApiClient.OnConnectionFailedListener,
 
     boolean connect(){
          mGoogleApiClient.connect();
-        //DriveApi.DriveContentsResult result = Drive.DriveApi.newDriveContents(mGoogleApiClient).await();
-        //if(!result.getStatus().isSuccess())
-        //    return false;
 
         return true;
     }
+
     public void disconnect() {
         if(mGoogleApiClient != null)
             mGoogleApiClient.disconnect();

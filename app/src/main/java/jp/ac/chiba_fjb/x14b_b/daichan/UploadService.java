@@ -29,13 +29,12 @@ public class UploadService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        mDrive = new GoogleDrive(this);
-        mDrive.connect();
+
     }
 
     @Override
     public void onDestroy() {
-        mDrive.disconnect();
+
         super.onDestroy();
     }
 
@@ -51,14 +50,17 @@ public class UploadService extends IntentService {
             final String param1 = intent.getStringExtra("FILE_NAME");
             mUploadQueue.add(param1);
 
-            if(mThread == null || mThread.isAlive()){
+            if(mThread == null || !mThread.isAlive()){
                 mThread = new Thread(){
                     @Override
                     public void run() {
                         super.run();
+                        mDrive = new GoogleDrive(UploadService.this);
+                        mDrive.connect();
+
                         String fileName;
                         try {
-                            for(int i=0;i<10000 || !mDrive.isConnected();i++)
+                            for(int i=0;i<10 || !mDrive.isConnected();i++)
                                 Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -76,9 +78,10 @@ public class UploadService extends IntentService {
                                     System.out.println(fileName+"出力");
                                 }
                         }
+                        mDrive.disconnect();
                     }
                 };
-                mThread.run();
+                mThread.start();
             }
         }
     }

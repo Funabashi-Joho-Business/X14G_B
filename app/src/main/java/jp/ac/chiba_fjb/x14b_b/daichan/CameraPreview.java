@@ -234,6 +234,7 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
         if(mCamera == null)
             return false;
         mCamera.autoFocus(this);
+        onAutoFocus(true,null);
         return true;
     }
 
