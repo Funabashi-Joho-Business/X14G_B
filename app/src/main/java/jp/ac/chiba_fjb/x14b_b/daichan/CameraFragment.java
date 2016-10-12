@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import jp.ac.chiba_fjb.libs.GoogleDrive;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,7 +58,7 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
     @Override
     public void onStop() {
 
-        mDrive.disconnect();
+        //mDrive.disconnect();
         super.onStop();
     }
     @Override
@@ -81,6 +83,7 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
+        Snackbar.make(getView(),"保存要求", Snackbar.LENGTH_SHORT).show();
         mCamera.save();
         return false;
     }

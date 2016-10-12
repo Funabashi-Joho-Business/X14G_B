@@ -1,6 +1,7 @@
 package jp.ac.chiba_fjb.x14b_b.daichan;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.design.widget.TabLayout;
@@ -25,10 +26,12 @@ import java.security.MessageDigest;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 
+import jp.ac.chiba_fjb.libs.GoogleDrive;
+
 
 public class MainActivity extends AppCompatActivity  {
 
-
+    private GoogleDrive mDrive;
     private ViewPager mViewPager;
 
     @Override
@@ -36,14 +39,19 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mDrive = new GoogleDrive(this);
+       // mDrive.requestAccount();
+
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-            String[] mTabNames = {"カメラテスト"};
+            String[] mTabNames = {"カメラテスト","ログ"};
 
             @Override
             public Fragment getItem(int position) {
                 switch(position){
                     case 0:
                         return new CameraFragment();
+                    case 1:
+                        return new FragmentLog();
                 }
                 return null;
             }
@@ -67,5 +75,9 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mDrive.onActivityResult(requestCode,resultCode,data);
+    }
 }

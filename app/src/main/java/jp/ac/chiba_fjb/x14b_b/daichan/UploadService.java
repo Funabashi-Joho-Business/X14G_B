@@ -2,13 +2,13 @@ package jp.ac.chiba_fjb.x14b_b.daichan;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.AsyncTask;
 
 import java.io.File;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
+
+import jp.ac.chiba_fjb.libs.GoogleDrive;
+import to.pns.lib.LogService;
 
 
 /**
@@ -56,29 +56,23 @@ public class UploadService extends IntentService {
                     public void run() {
                         super.run();
                         mDrive = new GoogleDrive(UploadService.this);
-                        mDrive.connect();
-
                         String fileName;
-                        try {
-                            for(int i=0;i<10 || !mDrive.isConnected();i++)
-                                Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if(!mDrive.isConnected())
-                            return;
-
-                        mDrive.sync();
                         while((fileName = mUploadQueue.poll()) != null){
-                            if(mDrive.isConnected()) {
-                                    String upname = new File(fileName).getName();
 
-                                    GoogleDrive.Folder f = mDrive.getFolder().createFolder("CamData");
-                                    f.uploadFile(upname,fileName);
-                                    System.out.println(fileName+"出力");
-                                }
+                            File file = new File(fileName);
+                            String upname = "/ComData/"+file.getName();
+                            LogService.output(getApplicationContext(),"送信:"+file.getName());
+                            String id = mDrive.upload(upname,fileName,"image/jpeg");
+                            if(id != null){
+                                System.out.println(fileName+":"+id+"出力");
+                                file.exists();
+                                LogService.output(getApplicationContext(),"完了:"+file.getName());
+                            }
+                            else
+                                LogService.output(getApplicationContext(),"エラー:"+file.getName());
+
                         }
-                        mDrive.disconnect();
+
                     }
                 };
                 mThread.start();
