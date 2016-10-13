@@ -20,8 +20,6 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
     private TextureView mTextureView;
     private WindowManager mWindowManager;
     private String mFileName;
-    private int mTextureWidth;
-    private int mTextureHeight;
     private boolean mPreview = false;
     private SaveListener mSaveListener;
     static interface SaveListener{
@@ -49,29 +47,40 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
             //回転状況の設定
             int rot = setCameraDisplayOrientation();
             //アスペクト比から最適なプレビューサイズを設定
-            setPreviewSize(mTextureWidth,mTextureHeight,rot);
+            setPreviewSize(mTextureView.getWidth(),mTextureView.getHeight(),rot);
             //サイズから幅と高さの調整
-            double video_width;
-            double video_height;
+            float video_width;
+            float video_height;
             Camera.Parameters p = mCamera.getParameters();
 
+            float marginWidth;
+            float marginHeight;
             if(rot == 0){
                 video_width = p.getPreviewSize().height;
                 video_height = p.getPreviewSize().width;
+
             } else {
                 video_width = p.getPreviewSize().width;
                 video_height = p.getPreviewSize().height;
+
             }
-
             final double req = video_width / (double) video_height;
-            final double view_aspect = mTextureWidth / (double) mTextureHeight;
+            final double view_aspect = mTextureView.getWidth() / (double) mTextureView.getHeight();
 
+            float sx = 1.0f;
+            float sy = 1.0f;
 
             Matrix m = new Matrix();
             if (req > view_aspect)
-                m.setScale(1.0f, (float) (1.0 / (req / view_aspect)));
+                sy = (float) (1.0f / (req / view_aspect));
             else
-                m.setScale((float) (req / view_aspect), 1.0f);
+                sx = (float)(req / view_aspect);
+            m.postScale(sx,sy);
+
+            marginWidth = (mTextureView.getWidth()-video_width*sx)/2.0f;
+           marginHeight =  0;//(mTextureView.getHeight()-video_height*sy)/2.0f;
+
+            m.postTranslate(marginWidth,marginHeight);
             mTextureView.setTransform(m);
 
             mCamera.setPreviewTexture(texture);
@@ -84,8 +93,6 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        mTextureWidth = width;
-        mTextureHeight = height;
 
         if(mPreview)
             startPreview();
@@ -93,8 +100,6 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        mTextureWidth = width;
-        mTextureHeight = height;
 
         if(mPreview)
             startPreview();

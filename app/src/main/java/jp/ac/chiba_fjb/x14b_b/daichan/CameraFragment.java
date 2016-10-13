@@ -24,7 +24,7 @@ import jp.ac.chiba_fjb.libs.GoogleDrive;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CameraFragment extends Fragment implements View.OnTouchListener, CameraPreview.SaveListener {
+public class CameraFragment extends Fragment implements CameraPreview.SaveListener, View.OnClickListener {
 
 
     private CameraPreview mCamera;
@@ -41,7 +41,7 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_camera, container, false);;
-        view.setOnTouchListener(this);
+        view.setOnClickListener(this);
         return view;
     }
     @Override
@@ -82,15 +82,6 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
 
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        Snackbar.make(getView(),"保存要求", Snackbar.LENGTH_SHORT).show();
-        mCamera.save();
-        return false;
-    }
-
-
-
-    @Override
     public void onSave(final Bitmap bitmap) {
         final String fileName;
         try {
@@ -112,55 +103,12 @@ public class CameraFragment extends Fragment implements View.OnTouchListener, Ca
         } catch (IOException e) {
             e.printStackTrace();
         }
-/*
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
 
-                if(mDrive.isConnected()) {
-                    if(!mUploadFlag) {
-                        mUploadFlag = true;
+    }
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Snackbar.make(getView(), filename + "を保存中", Snackbar.LENGTH_SHORT).show();
-                            }
-                        });
-
-
-                        GoogleDrive.Folder f = mDrive.getFolder().createFolder("CamData");
-                        f.uploadBitmap(filename, bitmap);
-                        System.out.println("出力");
-                        mUploadFlag = false;
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Snackbar.make(getView(), filename + "を保存完了", Snackbar.LENGTH_SHORT).show();
-                            }
-                        });
-                    }else{
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Snackbar.make(getView(), "保存中の為、撮影をキャンセルしました", Snackbar.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-
-                }else
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Snackbar.make(getView(),"ドライブに接続されていません", Snackbar.LENGTH_SHORT).show();
-                        }
-                    });
-
-
-            }
-        }.start();*/
+    @Override
+    public void onClick(View v) {
+        Snackbar.make(getView(),"保存要求", Snackbar.LENGTH_SHORT).show();
+        mCamera.save();
     }
 }

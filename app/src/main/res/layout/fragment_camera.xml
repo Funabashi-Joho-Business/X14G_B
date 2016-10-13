@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="jp.ac.chiba_fjb.x14b_b.daichan.CameraFragment">
+    tools:context="jp.ac.chiba_fjb.x14b_b.daichan.CameraFragment"
+    android:layout_gravity="center">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
@@ -10,8 +11,8 @@
         android:layout_height="match_parent" />
 
     <TextureView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/textureView" />
 
 </FrameLayout>

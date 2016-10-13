@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
         mDrive = new GoogleDrive(this);
-       // mDrive.requestAccount();
+
 
         FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             String[] mTabNames = {"カメラテスト","ログ"};
