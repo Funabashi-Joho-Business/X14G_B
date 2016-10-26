@@ -1,6 +1,7 @@
 package jp.ac.chiba_fjb.x14b_b.daichan;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
@@ -20,6 +21,8 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
     private TextureView mTextureView;
     private WindowManager mWindowManager;
     private String mFileName;
+    private int mTextureWidth;
+    private int mTextureHeight;
     private boolean mPreview = false;
     private SaveListener mSaveListener;
     static interface SaveListener{
@@ -44,43 +47,39 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
 
             SurfaceTexture texture = mTextureView.getSurfaceTexture();
             mCamera.setPreviewTexture(mTextureView.getSurfaceTexture());
+
+            if(mTextureWidth == 0 || mTextureHeight==0){
+
+                mTextureWidth = mTextureView.getWidth();
+                mTextureHeight = mTextureView.getHeight();
+            }
+
             //回転状況の設定
             int rot = setCameraDisplayOrientation();
             //アスペクト比から最適なプレビューサイズを設定
-            setPreviewSize(mTextureView.getWidth(),mTextureView.getHeight(),rot);
+            //setPreviewSize(mTextureWidth,mTextureHeight,rot);
             //サイズから幅と高さの調整
-            float video_width;
-            float video_height;
+            double video_width;
+            double video_height;
             Camera.Parameters p = mCamera.getParameters();
 
-            float marginWidth;
-            float marginHeight;
             if(rot == 0){
                 video_width = p.getPreviewSize().height;
                 video_height = p.getPreviewSize().width;
-
             } else {
                 video_width = p.getPreviewSize().width;
                 video_height = p.getPreviewSize().height;
-
             }
-            final double req = video_width / (double) video_height;
-            final double view_aspect = mTextureView.getWidth() / (double) mTextureView.getHeight();
 
-            float sx = 1.0f;
-            float sy = 1.0f;
+            final double req = video_width / (double) video_height;
+            final double view_aspect = mTextureWidth / (double) mTextureHeight;
+
 
             Matrix m = new Matrix();
             if (req > view_aspect)
-                sy = (float) (1.0f / (req / view_aspect));
+                m.setScale(1.0f, (float) (1.0 / (req / view_aspect)));
             else
-                sx = (float)(req / view_aspect);
-            m.postScale(sx,sy);
-
-            marginWidth = (mTextureView.getWidth()-video_width*sx)/2.0f;
-           marginHeight =  0;//(mTextureView.getHeight()-video_height*sy)/2.0f;
-
-            m.postTranslate(marginWidth,marginHeight);
+                m.setScale((float) (req / view_aspect), 1.0f);
             mTextureView.setTransform(m);
 
             mCamera.setPreviewTexture(texture);
@@ -93,6 +92,8 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        mTextureWidth = width;
+        mTextureHeight = height;
 
         if(mPreview)
             startPreview();
@@ -100,6 +101,8 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        mTextureWidth = width;
+        mTextureHeight = height;
 
         if(mPreview)
             startPreview();
@@ -140,28 +143,22 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
             e.printStackTrace();
         }
     }
-    public void setPreviewSize(int width,int height,int rot) {
-        double aspect;
-        if(rot == 0)
-            aspect = (double)height/ width;
-        else
-            aspect = (double)width / height;
-
-
+    public void setPreviewSize(int width,int height) {
+        int i = 0;
         int index = 0;
-        double a = 10.0;
-        Camera.Parameters p = mCamera.getParameters();
-        List<Camera.Size> previewSizes = p.getSupportedPreviewSizes();
-
-        for (int i = 0; i < previewSizes.size(); i++) {
-            Camera.Size s = previewSizes.get(i);
-            double aspect2 = (double) s.width / s.height;
-            if(Math.abs(aspect - aspect2) < Math.abs(aspect-a)) {
-                a = aspect2;
+        int a = 0xffff;
+        List<Camera.Size> sizes = getPreviewSizes();
+        for(Camera.Size s : sizes){
+            int ab = Math.abs(s.width-width)+Math.abs(s.height-height);
+            if(ab < a) {
+                a = ab;
                 index = i;
             }
+            i++;
         }
-        Camera.Size s = previewSizes.get(index);
+        //プレビューサイズの設定
+        Camera.Parameters p = mCamera.getParameters();
+        Camera.Size s = sizes.get(index);
         p.setPreviewSize(s.width, s.height);
         mCamera.setParameters(p);
     }
@@ -225,21 +222,33 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
 
         return rotation%2;
     }
+    public static boolean isFeatureAutoFocus(Context context){
+        boolean hasAutoFocus = false;
+        PackageManager packageManager = context.getApplicationContext().getPackageManager();
+        hasAutoFocus = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS);
+        return hasAutoFocus;
+    }
+
     //プレビュー画像をファイルに保存
     //実際の保存はフォーカスが
     public boolean save(String fileName){
         if(mCamera == null)
             return false;
         mFileName = fileName;
-        mCamera.autoFocus(this);
-
+        if(mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
+           mCamera.autoFocus(this);
+        else
+            onAutoFocus(true,mCamera);
         return true;
     }
     public boolean save(){
         if(mCamera == null)
             return false;
-        mCamera.autoFocus(this);
-        onAutoFocus(true,null);
+        mFileName = null;
+        if(mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
+            mCamera.autoFocus(this);
+        else
+            onAutoFocus(true,mCamera);
         return true;
     }
 

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +41,19 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
 
         View view = inflater.inflate(R.layout.fragment_camera, container, false);;
         view.setOnClickListener(this);
+
+        view.findViewById(R.id.buttonStart).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getContext().startService(new Intent(getContext(), MonitoringService.class));
+            }
+        });
+        view.findViewById(R.id.buttonStop).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getContext().stopService(new Intent(getContext(), MonitoringService.class));
+            }
+        });
         return view;
     }
     @Override

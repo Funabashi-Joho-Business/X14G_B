@@ -32,7 +32,8 @@
 
         <service
             android:name=".UploadService"
-            android:exported="false"></service>
+            android:exported="false"/>
+        <service android:name=".MonitoringService" />
     </application>
 
 </manifest>
