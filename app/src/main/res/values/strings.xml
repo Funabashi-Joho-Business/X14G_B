@@ -5,4 +5,14 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="list">
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+    </string-array>
+    <string-array name="list2">
+        <item>854×480</item>
+        <item>1200×720</item>
+    </string-array>
 </resources>
