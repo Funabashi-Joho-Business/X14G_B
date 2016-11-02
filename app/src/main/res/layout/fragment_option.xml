@@ -81,20 +81,21 @@
 
     <RadioGroup
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:id="@+id/CameraType">
 
         <RadioButton
             android:text="フロントカメラ"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/radioButton4"
+            android:id="@+id/radioCamera0"
             android:layout_weight="1" />
 
         <RadioButton
             android:text="インカメラ"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/radioButton3"
+            android:id="@+id/radioCamera1"
             android:layout_weight="1" />
     </RadioGroup>
 

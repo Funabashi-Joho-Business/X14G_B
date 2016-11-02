@@ -168,13 +168,19 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
         if(mCamera != null){
             mCamera.release();
             mCamera = null;
+            mCameraId = -1;
         }
-        //カメラデバイスを開く
-        mCamera = Camera.open(id);
-        if(mCamera == null)
+        try {
+            //カメラデバイスを開く
+            mCamera = Camera.open(id);
+            if(mCamera == null)
+                return false;
+            mCameraId = id;
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
-        mCameraId = id;
-        return true;
+        }
     }
     public boolean close(){
         if(mCamera == null)

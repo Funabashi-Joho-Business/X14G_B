@@ -56,6 +56,12 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
         });
         return view;
     }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -67,12 +73,6 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
 
     }
 
-    @Override
-    public void onStop() {
-
-        //mDrive.disconnect();
-        super.onStop();
-    }
     @Override
     public void onResume() {
         super.onResume();
