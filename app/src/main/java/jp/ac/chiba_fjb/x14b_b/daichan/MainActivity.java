@@ -2,9 +2,7 @@ package jp.ac.chiba_fjb.x14b_b.daichan;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -25,38 +23,9 @@ public class MainActivity extends AppCompatActivity  {
         mDrive = new GoogleDrive(this);
 
 
-        FragmentPagerAdapter adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-            String[] mTabNames = {"オプション","カメラテスト","ログ"};
-
-            @Override
-            public Fragment getItem(int position) {
-                switch(position){
-                    case 0:
-                        return new FragmentOption();
-                    case 1:
-                        return new CameraFragment();
-                    case 2:
-                        return new FragmentLog();
-                }
-                return null;
-            }
-
-            @Override
-            public int getCount() {
-                return mTabNames.length;
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return mTabNames[position];
-            }
-        };
-
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(adapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.frame_fragment,new FragmentOption());
+        ft.commit();
 
     }
 
