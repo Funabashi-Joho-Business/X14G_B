@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -29,6 +30,7 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
     private CameraPreview mCamera;
     private GoogleDrive mDrive;
     private boolean mUploadFlag = false;
+    private int mVisibility;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -42,18 +44,15 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
         View view = inflater.inflate(R.layout.fragment_camera, container, false);;
         view.setOnClickListener(this);
 
-        view.findViewById(R.id.buttonStart).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.imageSetting).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getContext().startService(new Intent(getContext(), MonitoringService.class));
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.frame_fragment,new FragmentOption());
+                ft.commit();
             }
         });
-        view.findViewById(R.id.buttonStop).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getContext().stopService(new Intent(getContext(), MonitoringService.class));
-            }
-        });
+
         return view;
     }
 
@@ -65,9 +64,6 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
     @Override
     public void onStart() {
         super.onStart();
-
-
-
         mDrive = new GoogleDrive(getActivity());
         mDrive.connect();
 
@@ -76,6 +72,17 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
     @Override
     public void onResume() {
         super.onResume();
+
+        View view = getActivity().getWindow().getDecorView();
+        mVisibility = view.getSystemUiVisibility();
+        view.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LOW_PROFILE
+                         | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        );
 
         mCamera = new CameraPreview();
         TextureView textureView = (TextureView)getView().findViewById(R.id.textureView);
@@ -87,6 +94,9 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
     }
     @Override
     public void onPause() {
+        View view = getActivity().getWindow().getDecorView();
+        view.setSystemUiVisibility(mVisibility );
+
         mCamera.close();
         super.onPause();
     }

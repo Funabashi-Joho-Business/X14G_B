@@ -11,6 +11,7 @@ android {
     compileSdkVersion 24
     buildToolsVersion "24.0.2"
     defaultConfig {
+        multiDexEnabled true
         applicationId "jp.ac.chiba_fjb.x14b_b.daichan"
         minSdkVersion 15
         targetSdkVersion 24

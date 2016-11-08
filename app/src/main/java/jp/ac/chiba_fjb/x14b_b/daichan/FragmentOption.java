@@ -4,6 +4,7 @@ package jp.ac.chiba_fjb.x14b_b.daichan;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -35,11 +36,18 @@ public class FragmentOption extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_option, container, false);
+        view.findViewById(R.id.buttonPreview).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.frame_fragment,new CameraFragment());
+                ft.commit();
+            }
+        });
 
 
-
-        return inflater.inflate(R.layout.fragment_option, container, false);
+        return view;
     }
 
     @Override
