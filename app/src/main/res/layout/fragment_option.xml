@@ -149,7 +149,8 @@ android:layout_height="match_parent" android:layout_width="match_parent"
             android:inputType="textPersonName"
             android:text="Name"
             android:ems="10"
-            android:id="@+id/editName" />
+            android:id="@+id/editName"
+            android:focusable="false" />
 
         <TextView
             android:text="googleアカウント設定"

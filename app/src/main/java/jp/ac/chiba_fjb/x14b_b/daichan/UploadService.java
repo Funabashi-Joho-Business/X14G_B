@@ -75,7 +75,7 @@ public class UploadService extends IntentService {
                         while((fileName = mUploadQueue.poll()) != null){
 
                             File file = new File(fileName);
-                            String upname = String.format("/ComData/%s/%s/",cameraName,dayString,file.getName());
+                            String upname = String.format("/ComData/%s/%s/%s",cameraName,dayString,file.getName());
                             LogService.output(getApplicationContext(),"送信:"+file.getName());
                             String id = mDrive.upload(upname,fileName,"image/jpeg");
                             if(id != null){
