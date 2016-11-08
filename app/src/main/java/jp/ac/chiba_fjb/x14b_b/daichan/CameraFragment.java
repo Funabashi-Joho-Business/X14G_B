@@ -83,11 +83,18 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
         );
+        CameraDB db = new CameraDB(getContext());
+        int cameraType = db.getSetting("CAMERA_TYPE",0);
+        int cameraWidth = db.getSetting("CAMERA_WIDTH",1280);
+        int cameraHeight = db.getSetting("CAMERA_HEIGHT",960);
+
+        db.close();
 
         mCamera = new CameraPreview();
         TextureView textureView = (TextureView)getView().findViewById(R.id.textureView);
         mCamera.setTextureView(textureView);
-        mCamera.open(0);
+        mCamera.open(cameraType);
+        mCamera.setPreviewSize(cameraWidth,cameraHeight);
         mCamera.startPreview();
         mCamera.setOnSaveListener(this);
 
@@ -107,6 +114,10 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
     public void onSave(final Bitmap bitmap) {
         final String fileName;
         try {
+            CameraDB db = new CameraDB(getContext());
+            final int cameraQuality = db.getSetting("CAMERA_QUALITY",100);
+            db.close();
+
             String path = getActivity().getCacheDir().getPath();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
             fileName = path+"/"+sdf.format(new Date()) + ".jpeg";
@@ -114,7 +125,7 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
             FileOutputStream fos = null;
             fos = new FileOutputStream(new File(fileName));
             // jpegで保存
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, cameraQuality, fos);
             // 保存処理終了
             fos.close();
 

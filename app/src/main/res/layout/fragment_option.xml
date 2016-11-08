@@ -72,16 +72,15 @@ android:layout_height="match_parent" android:layout_width="match_parent"
             android:layout_weight="0.08">
 
             <TextView
-                android:text="TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView4"
+                android:id="@+id/textQuality"
                 android:layout_weight="1" />
 
             <SeekBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/seekBar"
+                android:id="@+id/seekQuality"
                 android:layout_weight="1.52"
                 android:max="100" />
         </LinearLayout>

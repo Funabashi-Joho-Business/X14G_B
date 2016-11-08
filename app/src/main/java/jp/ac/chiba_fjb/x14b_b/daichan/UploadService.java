@@ -4,7 +4,9 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
+import java.util.Date;
 import java.util.Queue;
 
 import jp.ac.chiba_fjb.libs.GoogleDrive;
@@ -46,6 +48,8 @@ public class UploadService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
+
+
             final String action = intent.getAction();
             final String param1 = intent.getStringExtra("FILE_NAME");
             mUploadQueue.add(param1);
@@ -55,12 +59,23 @@ public class UploadService extends IntentService {
                     @Override
                     public void run() {
                         super.run();
+
+
+
+                        //カメラ名を取得
+                        CameraDB db = new CameraDB(UploadService.this);
+                        String cameraName = db.getSetting("CAMERA_NAME","CAMERA1");
+                        db.close();
+                        //日付を文字列化
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                        String dayString = sdf.format(new Date());
+
                         mDrive = new GoogleDrive(UploadService.this);
                         String fileName;
                         while((fileName = mUploadQueue.poll()) != null){
 
                             File file = new File(fileName);
-                            String upname = "/ComData/"+file.getName();
+                            String upname = String.format("/ComData/%s/%s/",cameraName,dayString,file.getName());
                             LogService.output(getApplicationContext(),"送信:"+file.getName());
                             String id = mDrive.upload(upname,fileName,"image/jpeg");
                             if(id != null){

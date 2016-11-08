@@ -1,6 +1,7 @@
 package jp.ac.chiba_fjb.x14b_b.daichan;
 
 
+import android.content.Context;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,10 +11,12 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -36,7 +39,7 @@ public class FragmentOption extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_option, container, false);
+        final View view = inflater.inflate(R.layout.fragment_option, container, false);
         view.findViewById(R.id.buttonPreview).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -46,22 +49,15 @@ public class FragmentOption extends Fragment {
             }
         });
 
-
-        return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         CameraDB db = new CameraDB(getContext());
         String cameraTimer = db.getSetting("CAMERA_TIMER","10");
         int cameraType = db.getSetting("CAMERA_TYPE",0);
         int cameraVector = db.getSetting("CAMERA_VECTOR",0);
+        final int cameraQuality = db.getSetting("CAMERA_QUALITY",100);
         String cameraName = db.getSetting("CAMERA_NAME","CAMERA1");
         db.close();
 
-        EditText editName = (EditText)getView().findViewById(R.id.editName);
+        EditText editName = (EditText)view.findViewById(R.id.editName);
         editName.setText(cameraName);
         editName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -82,9 +78,29 @@ public class FragmentOption extends Fragment {
             }
         });
 
+        SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekQuality);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                TextView textQuality = (TextView)view.findViewById(R.id.textQuality);
+                textQuality.setText(""+progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar.setProgress(cameraQuality);
 
 
-        RadioGroup radioGroup = (RadioGroup)getView().findViewById(R.id.CameraType);
+
+        RadioGroup radioGroup = (RadioGroup)view.findViewById(R.id.CameraType);
         radioGroup.check(cameraType==0?R.id.radioCamera0:R.id.radioCamera1);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -96,7 +112,7 @@ public class FragmentOption extends Fragment {
             }
         });
 
-        RadioGroup radioGroup2 = (RadioGroup)getView().findViewById(R.id.CameraVector);
+        RadioGroup radioGroup2 = (RadioGroup)view.findViewById(R.id.CameraVector);
         radioGroup2.check(cameraType==0?R.id.radioVector0:R.id.radioVector1);
         radioGroup2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -109,7 +125,7 @@ public class FragmentOption extends Fragment {
 
         Spinner spinner;
         //プレビューサイズの設定
-        spinner = (Spinner) getView().findViewById(R.id.spinnerPreviewSize);
+        spinner = (Spinner) view.findViewById(R.id.spinnerPreviewSize);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -125,7 +141,7 @@ public class FragmentOption extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
         //タイマー設定
-        spinner = (Spinner) getView().findViewById(R.id.spinnerTimer);
+        spinner = (Spinner) view.findViewById(R.id.spinnerTimer);
         for(int i=0;i<spinner.getCount();i++){
             if(spinner.getItemAtPosition(i).equals(cameraTimer)) {
                 spinner.setSelection(i);
@@ -146,15 +162,12 @@ public class FragmentOption extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        updatePreviewSize();
-
-
         GoogleDrive drive = new GoogleDrive(getActivity());
         if(drive.getAccount() != null){
-            TextView textAccount = (TextView)getView().findViewById(R.id.textAccount);
+            TextView textAccount = (TextView)view.findViewById(R.id.textAccount);
             textAccount.setText(drive.getAccount());
         }
-        getView().findViewById(R.id.buttonAccountRemove).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.buttonAccountRemove).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 GoogleDrive drive = new GoogleDrive(getActivity());
@@ -162,7 +175,15 @@ public class FragmentOption extends Fragment {
                 drive.requestAccount();
             }
         });
+        return view;
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        updatePreviewSize();
     }
 
     void updatePreviewSize(){
