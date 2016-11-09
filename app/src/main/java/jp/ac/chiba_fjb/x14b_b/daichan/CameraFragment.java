@@ -87,7 +87,6 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
         int cameraType = db.getSetting("CAMERA_TYPE",0);
         int cameraWidth = db.getSetting("CAMERA_WIDTH",1280);
         int cameraHeight = db.getSetting("CAMERA_HEIGHT",960);
-
         db.close();
 
         mCamera = new CameraPreview();

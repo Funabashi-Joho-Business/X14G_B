@@ -82,6 +82,9 @@ public class FragmentOption extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 TextView textQuality = (TextView)view.findViewById(R.id.textQuality);
                 textQuality.setText(""+progress);
+                CameraDB db = new CameraDB(getContext());
+                db.setSetting("CAMERA_QUALITY",progress);
+                db.close();
             }
 
             @Override
