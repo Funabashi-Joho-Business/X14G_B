@@ -30,7 +30,7 @@ import to.pns.lib.Notify;
 public class MonitoringService extends Service implements CameraPreview.SaveListener {
     private Handler mHandler = new Handler();
     private Notify mNotify;
-    private CameraPreview mCamera;
+    private CameraTexture mCamera;
     private View mView;
 
     @Nullable
@@ -69,7 +69,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
 
         wm.addView(mView,params);
 
-        mCamera = new CameraPreview();
+        mCamera = new CameraTexture();
 
     }
 
@@ -98,8 +98,6 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
 
 
                         if(mCamera.open(cameraType)){
-                            mCamera.setTextureView(textureView);
-                            mCamera.setPreviewSize(cameraWidth,cameraHeight);
                             mCamera.startPreview();
                             try {
                                 Thread.sleep(3000);
