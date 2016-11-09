@@ -25,8 +25,8 @@ public class MonitoringService extends Service {
         super.onCreate();
         //ステータスバー表示用
         mNotify = new Notify(this,MainActivity.class,R.layout.status_layout,R.mipmap.ic_launcher);
-        //mNotify.setRemoteText(R.id.textTitle,getString(R.string.app_name));
-        //mNotify.setRemoteImage(R.id.imageNotify, R.mipmap.ic_launcher, 0);
+        mNotify.setRemoteText(R.id.textTitle,getString(R.string.app_name));
+        mNotify.setRemoteImage(R.id.imageNotify, R.mipmap.ic_launcher, 0);
     }
 
     @Override

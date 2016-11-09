@@ -15,13 +15,17 @@ android:layout_height="match_parent" android:layout_width="match_parent"
                 android:text="プレビュー"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/buttonPreview" />
+                android:id="@+id/buttonPreview" >
+
+            </Button>
 
             <TextView
+              android:focusable="true"
+            android:focusableInTouchMode="true"
             android:text="タイマー時間設定"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView" />
+            android:id="@+id/textView" ><requestFocus /></TextView>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -101,7 +105,8 @@ android:layout_height="match_parent" android:layout_width="match_parent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/radioCamera0"
-                android:layout_weight="1" />
+                android:layout_weight="1" >
+            </RadioButton>
 
             <RadioButton
                 android:text="インカメラ"
@@ -149,8 +154,7 @@ android:layout_height="match_parent" android:layout_width="match_parent"
             android:inputType="textPersonName"
             android:text="Name"
             android:ems="10"
-            android:id="@+id/editName"
-            android:focusable="false" />
+            android:id="@+id/editName" />
 
         <TextView
             android:text="googleアカウント設定"
