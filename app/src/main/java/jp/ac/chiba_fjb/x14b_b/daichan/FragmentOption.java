@@ -46,6 +46,15 @@ public class FragmentOption extends Fragment {
                 ft.commit();
             }
         });
+        view.findViewById(R.id.buttonLog).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.frame_fragment,new FragmentLog());
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        });
 
         CameraDB db = new CameraDB(getContext());
         String cameraTimer = db.getSetting("CAMERA_TIMER","10");

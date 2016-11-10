@@ -1,8 +1,6 @@
 package to.pns.lib;
 
 
-import java.util.ArrayList;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,6 +12,8 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.widget.RemoteViews;
+
+import java.util.ArrayList;
 
 public class Notify
 {
@@ -77,10 +77,6 @@ public class Notify
 		mManager.cancel(NOTIFY_ID);
 		mIcon = -1;
 
-//		mRemoteViews = new RemoteViews(mContext.getPackageName(), R.layout.status_layout);
-//		mRemoteViews.setTextViewText(R.id.textTitle,mContext.getString(R.string.app_name));
-//		mNotification.setContent(mRemoteViews);
-		
 		for(ActionData data : mAction)
 		{
 			int id = data.getID();
@@ -95,6 +91,8 @@ public class Notify
 	public void setRemoteText(int id,String value)
 	{
 		mRemoteViews.setTextViewText(id,value);
+		mNotify.tickerText = null;
+		mManager.notify(NOTIFY_ID,mNotify);
 	}
 	public void setRemoteImage(int id,int iconID,int iconLevel)
 	{

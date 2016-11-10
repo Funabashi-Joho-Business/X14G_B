@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import to.pns.lib.LogService;
 import to.pns.lib.Notify;
 
 /**
@@ -40,6 +41,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
         //ステータスバー表示用
         mNotify = new Notify(this,MainActivity.class,R.layout.status_layout,R.mipmap.ic_launcher);
         mNotify.setRemoteText(R.id.textTitle,getString(R.string.app_name));
+        mNotify.setRemoteText(R.id.textMsg,"動作中");
         mNotify.setRemoteImage(R.id.imageNotify, R.mipmap.ic_launcher, 0);
 
         mCamera = new CameraTexture(this);
@@ -50,9 +52,13 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
     public int onStartCommand(Intent intent, int flags, int startId) {
         mNotify.output("サービス開始");
 
-        CameraDB db = new CameraDB(this);
-        int cameraTimer = 30000;//Integer.parseInt(db.getSetting("CAMERA_TIMER","10"))*60*1000;
 
+        CameraDB db = new CameraDB(this);
+        int cameraTimer = Integer.parseInt(db.getSetting("CAMERA_TIMER","10"));
+        LogService.output(this,String.format("サービス開始 %d分",cameraTimer));
+
+        if(mTimer != null)
+            mTimer.cancel();
         mTimer = new Timer();
         mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -69,11 +75,6 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
                         if(mCamera.open(cameraType)){
                             mCamera.setPreviewSize(cameraWidth,cameraHeight);
                             mCamera.startPreview();
-                            try {
-                                Thread.sleep(3000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
                             mCamera.setOnSaveListener(MonitoringService.this);
                             mCamera.save();
                         }
@@ -83,7 +84,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
                 });
 
             }
-        }, 0, cameraTimer);
+        }, 0, cameraTimer*60*1000);
 
 
         return super.onStartCommand(intent, flags, startId);
@@ -92,6 +93,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
 
     @Override
     public void onDestroy() {
+        LogService.output(this,"サービス停止");
         if(mTimer != null) {
             mTimer.cancel();
             mTimer = null;
@@ -131,6 +133,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
                 Intent intent = new Intent(this, UploadService.class);
                 intent.putExtra("FILE_NAME", fileName);
                 startService(intent);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
