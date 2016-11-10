@@ -195,9 +195,14 @@ public class FragmentOption extends Fragment {
         db.close();
 
 
-        Camera camera = Camera.open(cameraType);
-        Camera.Parameters p = camera.getParameters();
-        camera.release();
+        Camera.Parameters p = null;
+        try {
+            Camera camera = Camera.open(cameraType);
+            p = camera.getParameters();
+            camera.release();
+        } catch (Exception e) {
+            return;
+        }
 
 
         mPreviewSizes = p.getSupportedPreviewSizes();

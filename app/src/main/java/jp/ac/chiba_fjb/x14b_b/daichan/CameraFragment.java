@@ -34,6 +34,7 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
 
     public CameraFragment() {
         // Required empty public constructor
+        mCamera = new CameraPreview();
     }
 
 
@@ -64,6 +65,7 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
     @Override
     public void onStart() {
         super.onStart();
+
         mDrive = new GoogleDrive(getActivity());
         mDrive.connect();
 
@@ -89,7 +91,6 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
         int cameraHeight = db.getSetting("CAMERA_HEIGHT",960);
         db.close();
 
-        mCamera = new CameraPreview();
         TextureView textureView = (TextureView)getView().findViewById(R.id.textureView);
         mCamera.setTextureView(textureView);
         mCamera.open(cameraType);
@@ -100,6 +101,7 @@ public class CameraFragment extends Fragment implements CameraPreview.SaveListen
     }
     @Override
     public void onPause() {
+
         View view = getActivity().getWindow().getDecorView();
         view.setSystemUiVisibility(mVisibility );
 

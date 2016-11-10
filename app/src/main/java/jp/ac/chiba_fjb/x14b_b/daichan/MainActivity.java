@@ -101,12 +101,7 @@ public class MainActivity extends AppCompatActivity  {
         });
         mPermission.addPermission( Manifest.permission.CAMERA);
         mPermission.addPermission( Manifest.permission.GET_ACCOUNTS);
-        mPermission.addPermission( Manifest.permission.SYSTEM_ALERT_WINDOW);
-
-
         mPermission.requestPermissions(this);
-
-
 
     }
 

@@ -1,24 +1,38 @@
 package jp.ac.chiba_fjb.x14b_b.daichan;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
+
+import static android.hardware.Camera.AutoFocusCallback;
+import static android.hardware.Camera.PreviewCallback;
 
 /**
  * Created by oikawa on 2016/11/09.
  */
 
-public class CameraTexture implements Camera.AutoFocusCallback, Camera.PreviewCallback {
+public class CameraTexture implements AutoFocusCallback, PreviewCallback {
+    private Context mContext;
     private Camera mCamera;
     private SurfaceTexture mTexutre;
     private int mCameraId = -1;
+    private int mPreviewWidth;
+    private int mPreviewHeight;
     private CameraPreview.SaveListener mSaveListener;
     private byte[] mPreviewData;
+    private int mDegrees;
+
+    public CameraTexture(Context context){
+        mContext = context;
+    }
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
@@ -44,7 +58,6 @@ public class CameraTexture implements Camera.AutoFocusCallback, Camera.PreviewCa
 
             //カメラデバイスを開く
             mCamera = Camera.open(id);
-            mCamera.setPreviewCallback(this);
             if(mCamera == null)
                 return false;
             mCameraId = id;
@@ -63,13 +76,37 @@ public class CameraTexture implements Camera.AutoFocusCallback, Camera.PreviewCa
         mCameraId = -1;
         return true;
     }
+    void setPreviewSize(int width,int height){
+        mPreviewWidth = width;
+        mPreviewHeight = height;
+    }
     boolean startPreview(){
         try {
             if(mCamera == null)
                 return false;
-
             mTexutre = new SurfaceTexture(0);
             mCamera.setPreviewTexture(mTexutre);
+
+            mCamera.setPreviewCallback(this);
+
+            int rotation = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+            final int[] DEG = {90,0,-90,180};
+            mDegrees = DEG[rotation];
+
+            if(mPreviewWidth != 0){
+
+                Camera.Parameters p = mCamera.getParameters();
+                p.setPreviewSize(mPreviewWidth,mPreviewHeight);
+                mCamera.setParameters(p);
+                if(rotation%2 == 0)
+                    mTexutre.setDefaultBufferSize(mPreviewHeight,mPreviewWidth);
+                else
+                    mTexutre.setDefaultBufferSize(mPreviewWidth,mPreviewHeight);
+            }
+
+
+
+
             mCamera.startPreview();
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,18 +116,11 @@ public class CameraTexture implements Camera.AutoFocusCallback, Camera.PreviewCa
     boolean stopPreview(){
         if(mCamera == null)
             return false;
+        mCamera.setPreviewCallback(null);
         mCamera.stopPreview();
         return true;
     }
-    public boolean save(){
-        if(mCamera == null)
-            return false;
-        if(mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
-            mCamera.autoFocus(this);
-        else
-            onAutoFocus(true,mCamera);
-        return true;
-    }
+
     @Override
     public void onAutoFocus(boolean success, Camera camera) {
 
@@ -106,10 +136,24 @@ public class CameraTexture implements Camera.AutoFocusCallback, Camera.PreviewCa
                 yuv.compressToJpeg(new Rect(0, 0, width, height), 100, out);
 
                 byte[] bytes = out.toByteArray();
-                final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                Matrix m = new Matrix(); //Bitmapの回転用Matrix
+                m.setRotate(mDegrees);
+                bitmap = Bitmap.createBitmap(
+                        bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+
 
                 mSaveListener.onSave(bitmap);
             }
         }
+    }
+    public boolean save(){
+        if(mCamera == null)
+            return false;
+        if(mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
+            mCamera.autoFocus(this);
+        else
+            onAutoFocus(true,mCamera);
+        return true;
     }
 }

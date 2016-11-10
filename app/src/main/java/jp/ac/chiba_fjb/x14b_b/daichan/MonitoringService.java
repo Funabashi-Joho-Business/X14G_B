@@ -1,17 +1,12 @@
 package jp.ac.chiba_fjb.x14b_b.daichan;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
-import android.view.WindowManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,29 +42,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
         mNotify.setRemoteText(R.id.textTitle,getString(R.string.app_name));
         mNotify.setRemoteImage(R.id.imageNotify, R.mipmap.ic_launcher, 0);
 
-        // Viewからインフレータを作成する
-        LayoutInflater layoutInflater = LayoutInflater.from(this);
-        // レイアウトファイルから重ね合わせするViewを作成する
-        mView = layoutInflater.inflate(R.layout.layer, null);
-
-        // 重ね合わせするViewの設定を行う
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH|
-                        WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED|
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN|
-                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                PixelFormat.TRANSPARENT);
-
-
-        // WindowManagerを取得する
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-
-        wm.addView(mView,params);
-
-        mCamera = new CameraTexture();
+        mCamera = new CameraTexture(this);
 
     }
 
@@ -78,7 +51,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
         mNotify.output("サービス開始");
 
         CameraDB db = new CameraDB(this);
-        int cameraTimer = 30000;//Integer.parseInt(db.getSetting("CAMERA_TIMER","10"));
+        int cameraTimer = 30000;//Integer.parseInt(db.getSetting("CAMERA_TIMER","10"))*60*1000;
 
         mTimer = new Timer();
         mTimer.scheduleAtFixedRate(new TimerTask() {
@@ -93,11 +66,8 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
                         int cameraHeight = db.getSetting("CAMERA_HEIGHT",960);
                         db.close();
 
-                        TextureView textureView = (TextureView) mView.findViewById(R.id.textureView);
-
-
-
                         if(mCamera.open(cameraType)){
+                            mCamera.setPreviewSize(cameraWidth,cameraHeight);
                             mCamera.startPreview();
                             try {
                                 Thread.sleep(3000);

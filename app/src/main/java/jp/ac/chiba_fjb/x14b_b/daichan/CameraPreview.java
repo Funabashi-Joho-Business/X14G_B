@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class CameraPreview implements  Camera.AutoFocusCallback {
+public class CameraPreview implements TextureView.SurfaceTextureListener,  Camera.AutoFocusCallback {
     private Camera mCamera;
     private int mCameraId = -1;
     private TextureView mTextureView;
@@ -91,6 +91,40 @@ public class CameraPreview implements  Camera.AutoFocusCallback {
     }
 
     @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        mTextureWidth = width;
+        mTextureHeight = height;
+
+        if(mPreview)
+            startPreview();
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        mTextureWidth = width;
+        mTextureHeight = height;
+
+        if(mPreview)
+            startPreview();
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        //カメラデバイスの解放
+        if(mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+            mCameraId = -1;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+    }
+    @Override
     public void onAutoFocus(boolean success, Camera camera) {
         try {
             Bitmap bitmap = mTextureView.getBitmap();
@@ -110,6 +144,9 @@ public class CameraPreview implements  Camera.AutoFocusCallback {
         }
     }
     public void setPreviewSize(int width,int height) {
+        if(mCamera == null)
+            return;
+
         int i = 0;
         int index = 0;
         int a = 0xffff;
@@ -163,8 +200,12 @@ public class CameraPreview implements  Camera.AutoFocusCallback {
         return mCamera.getParameters().getSupportedPreviewSizes();
     }
     public boolean setTextureView(TextureView view){
+        if(mCamera != null)
+            return false;
+
         mWindowManager = (WindowManager)view.getContext().getSystemService(Context.WINDOW_SERVICE);
         mTextureView = view;
+        view.setSurfaceTextureListener(this);
 
         return true;
     }
