@@ -1,18 +1,18 @@
 package jp.ac.chiba_fjb.libs;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.http.InputStreamContent;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -135,6 +135,16 @@ public class GoogleDrive extends GoogleAccount {
                     .setFields("id, parents")
                     .execute();
             return file.getId();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public Bitmap downloadImage(String id){
+        try {
+            HttpResponse response = mDrive.files().get(id).executeMedia();
+            Bitmap bitmapm = BitmapFactory.decodeStream(response.getContent());
+            return bitmapm;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

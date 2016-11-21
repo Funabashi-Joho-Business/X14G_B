@@ -8,13 +8,13 @@ android {
             storeFile file('../debug.keystore')
         }
     }
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
     defaultConfig {
         multiDexEnabled true
         applicationId "jp.ac.chiba_fjb.x14b_b.daichan"
         minSdkVersion 15
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -42,9 +42,9 @@ dependencies {
         compile.exclude group: "org.apache.httpcomponents", module: "httpclient"
     }
     compile project(path: ':ShareLib')
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:appcompat-v7:25.+'
+    compile 'com.android.support:design:25.+'
+    compile 'com.android.support:support-v4:25.+'
     compile 'com.google.api-client:google-api-client-android:1.22.0'
     compile 'com.google.android.gms:play-services-auth:9.6.1'
     compile 'com.google.http-client:google-http-client-gson:1.22.0'
