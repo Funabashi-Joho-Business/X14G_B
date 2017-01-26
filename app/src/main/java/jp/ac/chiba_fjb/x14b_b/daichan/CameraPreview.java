@@ -244,20 +244,28 @@ public class CameraPreview implements TextureView.SurfaceTextureListener,  Camer
         if(mCamera == null)
             return false;
         mFileName = fileName;
-        if(mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
-           mCamera.autoFocus(this);
-        else
-            onAutoFocus(true,mCamera);
+        try {
+            if(mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
+               mCamera.autoFocus(this);
+            else
+                onAutoFocus(true,mCamera);
+        }catch (Exception e){
+            onAutoFocus(true, mCamera);
+        }
         return true;
     }
     public boolean save(){
         if(mCamera == null)
             return false;
         mFileName = null;
-        if(mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
-            mCamera.autoFocus(this);
-        else
-            onAutoFocus(true,mCamera);
+        try {
+            if (mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO))
+                mCamera.autoFocus(this);
+            else
+                onAutoFocus(true, mCamera);
+        }catch (Exception e){
+            onAutoFocus(true, mCamera);
+        }
         return true;
     }
 
