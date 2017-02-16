@@ -9,7 +9,7 @@ android {
         }
     }
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.2"
     defaultConfig {
         multiDexEnabled true
         applicationId "jp.ac.chiba_fjb.x14b_b.daichan"

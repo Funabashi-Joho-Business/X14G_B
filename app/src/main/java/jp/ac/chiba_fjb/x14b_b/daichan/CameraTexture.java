@@ -74,6 +74,7 @@ public class CameraTexture implements AutoFocusCallback, PreviewCallback {
         mCamera.release();
         mCamera = null;
         mCameraId = -1;
+        mPreviewData = null;
         return true;
     }
     void setPreviewSize(int width,int height){
@@ -89,13 +90,24 @@ public class CameraTexture implements AutoFocusCallback, PreviewCallback {
 
             mCamera.setPreviewCallback(this);
 
+            Camera.Parameters p = mCamera.getParameters();
+            android.hardware.Camera.CameraInfo info =
+                new android.hardware.Camera.CameraInfo();
+            mCamera.getCameraInfo(mCameraId,info);
+
             int rotation = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
-            final int[] DEG = {90,0,-90,180};
-            mDegrees = DEG[rotation];
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT){
+                final int[] DEG = {-90, 0, 90, 180};
+                mDegrees = DEG[rotation];
+            }else {
+                final int[] DEG = {90, 0, -90, 180};
+                mDegrees = DEG[rotation];
+            }
 
             if(mPreviewWidth != 0){
 
-                Camera.Parameters p = mCamera.getParameters();
+
+
                 p.setPreviewSize(mPreviewWidth,mPreviewHeight);
                 mCamera.setParameters(p);
                 if(rotation%2 == 0)
@@ -140,7 +152,7 @@ public class CameraTexture implements AutoFocusCallback, PreviewCallback {
                 Matrix m = new Matrix(); //Bitmapの回転用Matrix
                 m.setRotate(mDegrees);
                 bitmap = Bitmap.createBitmap(
-                        bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+                        bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),m , true);
 
 
                 mSaveListener.onSave(bitmap);

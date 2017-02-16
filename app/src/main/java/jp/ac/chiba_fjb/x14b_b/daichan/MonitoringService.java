@@ -55,7 +55,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
 
         CameraDB db = new CameraDB(this);
         int cameraTimer = Integer.parseInt(db.getSetting("CAMERA_TIMER","10"));
-        LogService.output(this,String.format("サービス開始 %d分",cameraTimer));
+        LogService.output(this,String.format("サービス開始 %d秒",cameraTimer));
 
         if(mTimer != null)
             mTimer.cancel();
@@ -84,7 +84,7 @@ public class MonitoringService extends Service implements CameraPreview.SaveList
                 });
 
             }
-        }, 0, cameraTimer*60*1000);
+        }, 0, cameraTimer*1000);
 
 
         return super.onStartCommand(intent, flags, startId);
